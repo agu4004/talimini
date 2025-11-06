@@ -93,6 +93,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--reward-overpitch", type=float, default=-0.2, help="Penalty for overpitching (NEW).")
 
     # Environment parameters
+    parser.add_argument("--max-episode-steps", type=int, default=500, help="Maximum steps per episode (NEW: prevents infinite games).")
     parser.add_argument("--seed", type=int, default=42, help="Random seed.")
     parser.add_argument("--rules-version", type=str, default="standard", help="Rules version label.")
 
@@ -120,6 +121,7 @@ def make_env(
     reward_on_hit: float = 0.5,
     reward_good_block: float = 0.3,
     reward_overpitch: float = -0.2,
+    max_episode_steps: int = 500,
 ):
     """Create a monitored environment with improved reward shaping."""
     def _init():
@@ -131,6 +133,7 @@ def make_env(
             reward_on_hit=reward_on_hit,
             reward_good_block=reward_good_block,
             reward_overpitch=reward_overpitch,
+            max_episode_steps=max_episode_steps,
         )
         # Add action mask to observation for proper masking
         env = ActionMasker(env, action_mask_fn=lambda env: env.action_masks())
@@ -152,9 +155,10 @@ def main() -> None:
 
     # Print configuration
     print("=" * 80)
-    print("IMPROVED TRAINING CONFIGURATION")
+    print("IMPROVED TRAINING CONFIGURATION (WITH FREEZE FIX)")
     print("=" * 80)
     print(f"Total timesteps: {args.total_timesteps:,}")
+    print(f"Max episode steps: {args.max_episode_steps} (NEW: Prevents infinite games)")
     print(f"Batch size: {args.batch_size} (original: 64)")
     print(f"Rollout steps: {args.n_steps} (original: 2048)")
     print(f"Entropy coefficient: {args.ent_coef} → {args.ent_coef_final if args.use_ent_annealing else args.ent_coef} (original: 0.0)")
@@ -179,6 +183,7 @@ def main() -> None:
         reward_on_hit=args.reward_on_hit,
         reward_good_block=args.reward_good_block,
         reward_overpitch=args.reward_overpitch,
+        max_episode_steps=args.max_episode_steps,
     )()
 
     # Create evaluation environment
@@ -191,6 +196,7 @@ def main() -> None:
         reward_on_hit=args.reward_on_hit,
         reward_good_block=args.reward_good_block,
         reward_overpitch=args.reward_overpitch,
+        max_episode_steps=args.max_episode_steps,
     )()
 
     # Setup learning rate schedule

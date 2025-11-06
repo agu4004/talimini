@@ -55,6 +55,7 @@ class FabgameEnv(gym.Env):
         reward_on_hit: float = 0.0,
         reward_good_block: float = 0.0,
         reward_overpitch: float = 0.0,
+        max_episode_steps: int = 500,  # NEW: Prevent infinite games
         seed: Optional[int] = None,
         deck0: Optional[list] = None,
         deck1: Optional[list] = None,
@@ -74,6 +75,7 @@ class FabgameEnv(gym.Env):
         self.reward_on_hit = reward_on_hit
         self.reward_good_block = reward_good_block
         self.reward_overpitch = reward_overpitch
+        self.max_episode_steps = max_episode_steps  # NEW: Store max steps
         self._deck0 = deck0
         self._deck1 = deck1
         self._hero0 = hero0
@@ -264,24 +266,33 @@ class FabgameEnv(gym.Env):
                 reward = self.reward_draw
 
         obs = encode_observation(self.state, config=self.encoder_config)
-        next_actions = self.legal_actions() if not done else []
+
+        # NEW: Check if episode should be truncated due to max steps
+        truncated = self._step_count >= self.max_episode_steps
+        if truncated and not done:
+            # Game ran too long without natural termination
+            # Give small negative reward to discourage infinite games
+            reward += -0.5
+
+        next_actions = self.legal_actions() if not (done or truncated) else []
         info = {
             "legal_actions": next_actions,
-            "legal_action_mask": legal_action_mask(next_actions, self.action_vocab) if not done else np.zeros(
+            "legal_action_mask": legal_action_mask(next_actions, self.action_vocab) if not (done or truncated) else np.zeros(
                 len(self.action_vocab), dtype=np.bool_
             ),
-            "actor": current_actor_index(self.state) if not done else None,
+            "actor": current_actor_index(self.state) if not (done or truncated) else None,
             "prev_actor": actor,
             "rules_version": self.rules_version,
             "events": events,
             "step_count": self._step_count,
             "seed": self._seed,
+            "truncated": truncated,  # NEW: Add truncation info
         }
         # Gymnasium returns 5-tuple: (obs, reward, terminated, truncated, info)
         # Add action mask to observation for SB3 action masking
         obs_with_mask = obs.copy()
         obs_with_mask["legal_action_mask"] = info["legal_action_mask"]
-        return obs_with_mask, float(reward), done, False, info
+        return obs_with_mask, float(reward), done, truncated, info
 
     def clone(self) -> GameState:
         return self.state.copy()
