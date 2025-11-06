@@ -360,22 +360,18 @@ class TestActionPoints:
         When: Resolution step completes
         Then: action_points incremented by 1
         """
+        from tests.conftest import execute_full_combat
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
         go_again_card = Card(name="Go Again", cost=0, attack=4, defense=2, pitch=1, keywords=["go_again"])
         gs.players[0].hand = [go_again_card]
 
-        # Execute attack
+        # Execute full combat sequence
         attack_action = Action(typ=ActType.PLAY_ATTACK, play_idx=0, pitch_mask=0)
-        state1, _, _ = apply_action(gs, attack_action)
-
-        # Complete combat
-        pass_action = Action(typ=ActType.PASS)
-        state2, _, _ = apply_action(state1, pass_action)
-        state3, _, _ = apply_action(state2, pass_action)
-        state4, _, _ = apply_action(state3, pass_action)
+        final_state = execute_full_combat(gs, attack_action)
 
         # Action point should be restored
-        assert state4.action_points == 1
+        assert final_state.action_points == 1
 
     def test_action_points_zero_after_normal_attack(self):
         """
@@ -448,21 +444,18 @@ class TestLastAttackTracking:
         When: Tracking attacks_this_turn
         Then: Counter increments for each attack
         """
+        from tests.conftest import execute_full_combat
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
-        go_again_card = Card(name="Go Again", cost=0, attack=4, defense=2, pitch=1, keywords=["go_again"])
-        gs.players[0].hand = [go_again_card, go_again_card.copy()]
+        go_again_card1 = Card(name="Go Again 1", cost=0, attack=4, defense=2, pitch=1, keywords=["go_again"])
+        go_again_card2 = Card(name="Go Again 2", cost=0, attack=4, defense=2, pitch=1, keywords=["go_again"])
+        gs.players[0].hand = [go_again_card1, go_again_card2]
 
         initial_attacks = gs.players[0].attacks_this_turn
 
-        # Execute first attack
+        # Execute first attack with full combat
         attack_action = Action(typ=ActType.PLAY_ATTACK, play_idx=0, pitch_mask=0)
-        state1, _, _ = apply_action(gs, attack_action)
-
-        # Complete combat
-        pass_action = Action(typ=ActType.PASS)
-        state2, _, _ = apply_action(state1, pass_action)
-        state3, _, _ = apply_action(state2, pass_action)
-        state4, _, _ = apply_action(state3, pass_action)
+        final_state = execute_full_combat(gs, attack_action)
 
         # Attack counter should increment
-        assert state4.players[0].attacks_this_turn >= initial_attacks + 1
+        assert final_state.players[0].attacks_this_turn >= initial_attacks + 1

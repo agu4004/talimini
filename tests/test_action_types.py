@@ -176,6 +176,8 @@ class TestWeaponAttackAction:
         When: Weapon attack resolves
         Then: Action point restored
         """
+        from tests.conftest import execute_full_combat
+
         gs = action_phase_state
         gs.players[gs.turn].weapon = go_again_weapon
 
@@ -183,18 +185,12 @@ class TestWeaponAttackAction:
         pitch_card = Card(name="Pitch", cost=0, attack=0, defense=2, pitch=1)
         gs.players[gs.turn].hand = [pitch_card]
 
-        # Execute weapon attack
+        # Execute weapon attack with full combat sequence
         weapon_action = Action(typ=ActType.WEAPON_ATTACK, pitch_mask=1)
-        state1, done, info = apply_action(gs, weapon_action)
-
-        # Complete combat (defender passes, both pass in reaction)
-        pass_action = Action(typ=ActType.PASS)
-        state2, done, info = apply_action(state1, pass_action)
-        state3, done, info = apply_action(state2, pass_action)
-        state4, done, info = apply_action(state3, pass_action)
+        final_state = execute_full_combat(gs, weapon_action)
 
         # Action point should be restored
-        assert state4.action_points == 1
+        assert final_state.action_points == 1
 
     def test_weapon_attack_stays_equipped(self, action_phase_state, simple_weapon):
         """
@@ -256,6 +252,8 @@ class TestDefendAction:
         When: Action created with mask
         Then: Mask correctly encodes selected cards
         """
+        from tests.conftest import skip_layer_step
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
         attack_card = Card(name="Attack", cost=0, attack=5, defense=3, pitch=1)
         gs.players[0].hand = [attack_card]
@@ -270,9 +268,12 @@ class TestDefendAction:
         attack_action = Action(typ=ActType.PLAY_ATTACK, play_idx=0, pitch_mask=0)
         state1, done, info = apply_action(gs, attack_action)
 
+        # Skip layer step
+        state_after_layer = skip_layer_step(state1)
+
         # Defend with cards 0 and 2 (mask = 0b101 = 5)
         defend_action = Action(typ=ActType.DEFEND, defend_mask=0b101)
-        state2, done, info = apply_action(state1, defend_action)
+        state2, done, info = apply_action(state_after_layer, defend_action)
 
         # Should have used 2 cards
         expected_block = defense_cards[0].defense + defense_cards[2].defense
@@ -338,10 +339,14 @@ class TestPassAction:
         """
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
 
+        # Add cards to hand so arsenal prompt is triggered
+        gs.players[0].hand = [Card(name="Card", cost=1, attack=2, defense=2, pitch=1)]
+
         pass_action = Action(typ=ActType.PASS)
         new_state, done, info = apply_action(gs, pass_action)
 
         assert new_state.phase == Phase.END
+        assert new_state.awaiting_arsenal is True
 
     def test_pass_in_layer_step(self, combat_layer_state):
         """
@@ -398,21 +403,26 @@ class TestSetArsenalAction:
         """
         Given: Player in end phase with cards
         When: SET_ARSENAL executed
-        Then: Card moved from hand to arsenal
+        Then: Card moved from hand to arsenal, turn ends and player draws new cards
         """
+        from fabgame.config import INTELLECT
+
         gs = end_phase_state
         from fabgame.models import Card
 
         test_card = Card(name="Arsenal Card", cost=1, attack=3, defense=2, pitch=1)
+        original_turn = gs.turn
         gs.players[gs.turn].hand = [test_card]
 
         set_action = Action(typ=ActType.SET_ARSENAL, play_idx=0)
         new_state, done, info = apply_action(gs, set_action)
 
-        player = new_state.players[gs.turn]
+        # Check the original player (turn may have advanced)
+        player = new_state.players[original_turn]
         assert len(player.arsenal) == 1
         assert player.arsenal[0].name == "Arsenal Card"
-        assert len(player.hand) == 0
+        # After SET_ARSENAL, turn ends and player draws up to INTELLECT
+        assert len(player.hand) == INTELLECT
 
     def test_set_arsenal_only_if_slot_empty(self):
         """

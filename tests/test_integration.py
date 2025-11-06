@@ -50,7 +50,8 @@ class TestFullTurnSequence:
         assert state7.action_points == 0
         assert state7.combat_step == CombatStep.IDLE
 
-        # 4. Action: PASS → end phase
+        # 4. Action: Add card to hand so arsenal prompt triggers, then PASS → end phase
+        state7.players[0].hand = [Card(name="Card", cost=1, attack=2, defense=2, pitch=1)]
         state8, _, _ = apply_action(state7, pass_action)
         assert state8.phase == Phase.END
         assert state8.awaiting_arsenal is True
@@ -66,6 +67,8 @@ class TestFullTurnSequence:
         When: Turn executed
         Then: First attack → Go Again → second attack → end
         """
+        from tests.conftest import execute_full_combat
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
 
         go_again_cards = [
@@ -74,37 +77,24 @@ class TestFullTurnSequence:
         ]
         gs.players[0].hand = go_again_cards
 
-        # First attack
+        # First attack with full combat
         attack1_action = Action(typ=ActType.PLAY_ATTACK, play_idx=0, pitch_mask=0)
-        state1, _, _ = apply_action(gs, attack1_action)
-
-        # Complete combat
-        pass_action = Action(typ=ActType.PASS)
-        state2, _, _ = apply_action(state1, pass_action)
-        state3, _, _ = apply_action(state2, pass_action)
-        state4, _, _ = apply_action(state3, pass_action)
-        state5, _, _ = apply_action(state4, pass_action)
+        state_after_first = execute_full_combat(gs, attack1_action)
 
         # Should have action point restored
-        assert state5.action_points == 1
-        assert state5.phase == Phase.ACTION
+        assert state_after_first.action_points == 1
+        assert state_after_first.phase == Phase.ACTION
 
         # Second attack
-        legal = enumerate_legal_actions(state5)
+        legal = enumerate_legal_actions(state_after_first)
         attack_actions = [a for a in legal if a.typ == ActType.PLAY_ATTACK]
 
         if attack_actions:
-            state6, _, _ = apply_action(state5, attack_actions[0])
-
-            # Complete second combat
-            state7, _, _ = apply_action(state6, pass_action)
-            state8, _, _ = apply_action(state7, pass_action)
-            state9, _, _ = apply_action(state8, pass_action)
-            state10, _, _ = apply_action(state9, pass_action)
+            state_after_second = execute_full_combat(state_after_first, attack_actions[0])
 
             # Action point restored again
-            assert state10.action_points == 1
-            assert state10.phase == Phase.ACTION
+            assert state_after_second.action_points == 1
+            assert state_after_second.phase == Phase.ACTION
 
 
 class TestCombatWithReactions:
@@ -116,6 +106,8 @@ class TestCombatWithReactions:
         When: Combat executed
         Then: Block → defense reaction → damage reduced
         """
+        from tests.conftest import execute_full_combat
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
 
         attack_card = Card(name="Attack", cost=0, attack=8, defense=3, pitch=1)
@@ -128,37 +120,19 @@ class TestCombatWithReactions:
 
         defender_life = gs.players[1].life
 
-        # Execute attack
+        # Execute attack with block in defend step and reaction in reaction step
         attack_action = Action(typ=ActType.PLAY_ATTACK, play_idx=0, pitch_mask=0)
-        state1, _, _ = apply_action(gs, attack_action)
+        defend_action = Action(typ=ActType.DEFEND, defend_mask=0b01)  # Just block card (first card)
+        # After defend step, block card is removed, so reaction card is now at index 0
+        defender_reaction = Action(typ=ActType.DEFEND, defend_mask=0b01)  # Reaction card (now first card)
 
-        # Complete layer
-        pass_action = Action(typ=ActType.PASS)
-        state2, _, _ = apply_action(state1, pass_action)
-        state3, _, _ = apply_action(state2, pass_action)
+        final_state = execute_full_combat(gs, attack_action, defend_action,
+                                          defender_reactions=[defender_reaction])
 
-        # Block with regular card
-        defend_action = Action(typ=ActType.DEFEND, defend_mask=1)  # First card
-        state4, _, _ = apply_action(state3, defend_action)
-
-        assert state4.reaction_block == 2
-
-        # In reaction step, play defense reaction
-        legal = enumerate_legal_actions(state4)
-        defend_reactions = [a for a in legal if a.typ == ActType.DEFEND and a.defend_mask != 0]
-
-        if defend_reactions:
-            state5, _, _ = apply_action(state4, defend_reactions[0])
-            # Total block should be 2 + 3 = 5
-            assert state5.reaction_block >= 5
-
-            # Both pass
-            state6, _, _ = apply_action(state5, pass_action)
-            state7, _, _ = apply_action(state6, pass_action)
-
-            # Damage should be 8 - 5 = 3
-            expected_life = defender_life - 3
-            assert state7.players[1].life == expected_life
+        # Total block should be 2 (block) + 3 (reaction) = 5
+        # Damage should be 8 - 5 = 3
+        expected_life = defender_life - 3
+        assert final_state.players[1].life == expected_life
 
     def test_combat_with_attack_reactions(self):
         """
@@ -318,9 +292,13 @@ class TestGameToCompletion:
         continue_action = Action(typ=ActType.CONTINUE)
         state1, _, _ = apply_action(gs, continue_action)
 
+        # Add cards to hand so arsenal prompt triggers
+        state1.players[0].hand = [Card(name="Card", cost=1, attack=2, defense=2, pitch=1)]
+
         # PASS to end
         pass_action = Action(typ=ActType.PASS)
         state2, _, _ = apply_action(state1, pass_action)
+        assert state2.phase == Phase.END
 
         # Pass arsenal
         state3, _, _ = apply_action(state2, pass_action)
@@ -332,6 +310,9 @@ class TestGameToCompletion:
         # CONTINUE
         state4, _, _ = apply_action(state3, continue_action)
         assert state4.phase == Phase.ACTION
+
+        # Add cards to hand so arsenal prompt triggers
+        state4.players[1].hand = [Card(name="Card", cost=1, attack=2, defense=2, pitch=1)]
 
         # PASS to end
         state5, _, _ = apply_action(state4, pass_action)
@@ -350,6 +331,8 @@ class TestGameToCompletion:
         When: Damage dealt
         Then: Life totals progressively decrease
         """
+        from tests.conftest import execute_full_combat
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
 
         # Give both players attacks
@@ -362,19 +345,12 @@ class TestGameToCompletion:
         initial_life_0 = gs.players[0].life
         initial_life_1 = gs.players[1].life
 
-        # Execute one attack
+        # Execute one attack with full combat sequence (no blocks)
         attack_action = Action(typ=ActType.PLAY_ATTACK, play_idx=0, pitch_mask=0)
-        state1, _, _ = apply_action(gs, attack_action)
-
-        # Complete combat (no blocks)
-        pass_action = Action(typ=ActType.PASS)
-        state2, _, _ = apply_action(state1, pass_action)
-        state3, _, _ = apply_action(state2, pass_action)
-        state4, _, _ = apply_action(state3, pass_action)
-        state5, _, _ = apply_action(state4, pass_action)
+        final_state = execute_full_combat(gs, attack_action)
 
         # Defender life should decrease
-        assert state5.players[1].life < initial_life_1
+        assert final_state.players[1].life < initial_life_1
 
         # Continue turn and attack back
         # (Additional test steps...)
@@ -389,6 +365,8 @@ class TestComplexScenarios:
         When: Chaining attacks
         Then: Resources managed correctly across attacks
         """
+        from tests.conftest import execute_full_combat
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
 
         # Attack costs 1, has Go Again
@@ -403,31 +381,25 @@ class TestComplexScenarios:
 
         gs.players[0].hand = [attack1, attack2] + pitch_cards
 
-        # First attack (cost 1)
+        # First attack (cost 1) - needs pitch cards
         legal = enumerate_legal_actions(gs)
         attack1_actions = [a for a in legal if a.typ == ActType.PLAY_ATTACK and a.play_idx == 0]
 
         if attack1_actions:
-            state1, _, _ = apply_action(gs, attack1_actions[0])
-
-            # Complete combat
-            pass_action = Action(typ=ActType.PASS)
-            state2, _, _ = apply_action(state1, pass_action)
-            state3, _, _ = apply_action(state2, pass_action)
-            state4, _, _ = apply_action(state3, pass_action)
-            state5, _, _ = apply_action(state4, pass_action)
+            # Execute full combat sequence
+            final_state = execute_full_combat(gs, attack1_actions[0])
 
             # Should have action point back
-            assert state5.action_points == 1
+            assert final_state.action_points == 1
 
             # Second attack (cost 0, should be free)
-            legal2 = enumerate_legal_actions(state5)
+            legal2 = enumerate_legal_actions(final_state)
             attack2_actions = [a for a in legal2 if a.typ == ActType.PLAY_ATTACK]
 
             if attack2_actions:
-                state6, _, _ = apply_action(state5, attack2_actions[0])
+                state2, _, _ = apply_action(final_state, attack2_actions[0])
                 # Should succeed
-                assert state6.pending_attack > 0
+                assert state2.pending_attack > 0
 
     def test_arsenal_usage_over_turns(self):
         """

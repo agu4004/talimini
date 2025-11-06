@@ -294,18 +294,26 @@ def execute_full_combat(
     if defender_reactions:
         for reaction in defender_reactions:
             state, _, _ = apply_action(state, reaction)
+        # After defense reaction, priority goes to attacker
+        # Attacker passes (combat_passes = 0, priority back to defender)
+        state, _, _ = apply_action(state, Action(typ=ActType.PASS))
+        # Defender passes (combat_passes = 1, priority to attacker)
+        state, _, _ = apply_action(state, Action(typ=ActType.PASS))
     else:
-        # Defender passes
+        # Defender passes (priority goes to attacker, combat_passes = 1)
         state, _, _ = apply_action(state, Action(typ=ActType.PASS))
 
     # 5. Reaction step - attacker reactions
     if attacker_reactions:
         for reaction in attacker_reactions:
             state, _, _ = apply_action(state, reaction)
-        # After reactions, attacker must pass to resolve
+        # After attack reaction, priority goes to defender
+        # Defender passes (combat_passes = 0, priority to attacker)
+        state, _, _ = apply_action(state, Action(typ=ActType.PASS))
+        # Attacker passes (combat_passes = 1, will resolve)
         state, _, _ = apply_action(state, Action(typ=ActType.PASS))
     else:
-        # Attacker passes
+        # Attacker passes to resolve combat (combat_passes should be 1)
         state, _, _ = apply_action(state, Action(typ=ActType.PASS))
 
     return state

@@ -31,10 +31,11 @@ def test_action_mask_matches_legal_actions():
         if weapon_actions and not weapon_checked:
             chosen = weapon_actions[0]
             try:
-                _, _, done, info = env.step(chosen)
+                _, _, terminated, truncated, info = env.step(chosen)
             except IndexError:
                 weapon_checked = True
                 break
+            done = terminated or truncated
             weapon_checked = True
             if not done:
                 follow_actions = info["legal_actions"]
@@ -45,9 +46,10 @@ def test_action_mask_matches_legal_actions():
 
         action = bot_choose_action(env.state, rng)
         try:
-            _, _, done, info = env.step(action)
+            _, _, terminated, truncated, info = env.step(action)
         except IndexError:
             break
+        done = terminated or truncated
         if done:
             break
 

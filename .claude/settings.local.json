@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(timeout 10 python:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []

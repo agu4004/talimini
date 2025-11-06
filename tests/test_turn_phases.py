@@ -135,7 +135,12 @@ class TestActionPhase:
         When: Player executes PASS
         Then: Phase transitions to END, awaiting_arsenal becomes True
         """
+        from fabgame.models import Card
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
+
+        # Add cards to hand so arsenal prompt is triggered
+        gs.players[0].hand = [Card(name="Card", cost=1, attack=2, defense=2, pitch=1)]
 
         pass_action = Action(typ=ActType.PASS)
         new_state, done, info = apply_action(gs, pass_action)
@@ -203,10 +208,12 @@ class TestEndPhase:
         """
         Given: Player in end phase
         When: Player executes SET_ARSENAL with card index
-        Then: Card moved from hand to arsenal, awaiting_arsenal becomes False
+        Then: Card moved from hand to arsenal, turn ends and player draws new cards
         """
+        from fabgame.config import INTELLECT
         from fabgame.models import Card
 
+        original_turn = end_phase_state.turn
         player = end_phase_state.players[end_phase_state.turn]
         test_card = Card(name="Arsenal Card", cost=1, attack=3, defense=2, pitch=1)
         player.hand = [test_card]
@@ -214,11 +221,12 @@ class TestEndPhase:
         set_arsenal_action = Action(typ=ActType.SET_ARSENAL, play_idx=0)
         new_state, done, info = apply_action(end_phase_state, set_arsenal_action)
 
-        # Card should move to arsenal
-        new_player = new_state.players[end_phase_state.turn]
+        # Card should move to arsenal, then turn ends and player draws
+        new_player = new_state.players[original_turn]
         assert len(new_player.arsenal) == 1
         assert new_player.arsenal[0].name == "Arsenal Card"
-        assert len(new_player.hand) == 0
+        # After SET_ARSENAL, turn ends and player draws up to INTELLECT
+        assert len(new_player.hand) == INTELLECT
 
     def test_end_phase_pass_skips_arsenal(self, end_phase_state):
         """

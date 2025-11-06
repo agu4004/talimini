@@ -14,10 +14,12 @@ def test_env_reset_step_and_restore():
     legal_actions = info["legal_actions"]
     assert legal_actions, "Expected at least one legal action on reset"
 
-    next_obs, reward, done, next_info = env.step(legal_actions[0])
+    next_obs, reward, terminated, truncated, next_info = env.step(legal_actions[0])
+    done = terminated or truncated
     assert isinstance(next_obs, dict)
     assert isinstance(reward, float)
-    assert isinstance(done, bool)
+    assert isinstance(terminated, bool)
+    assert isinstance(truncated, bool)
     assert "legal_action_mask" in next_info
 
     if not done:

@@ -10,7 +10,7 @@ def test_generate_dataset_single_game(tmp_path):
         deck_pool=None,
         rules_version="standard",
         max_pass_streak=12,
-        max_no_damage=20,
+        max_no_damage=2000,  # Increased to accommodate longer episodes
         output=str(tmp_path / "unused.npz"),
     )
     dataset = generate_dataset(args)

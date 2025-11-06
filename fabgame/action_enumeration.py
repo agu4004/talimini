@@ -79,7 +79,13 @@ class ActionEnumerator:
         """
         player_index = self.state.arsenal_player if self.state.arsenal_player is not None else self.state.turn
         arsenal_player = self.state.players[player_index]
-        actions = [Action(ActType.SET_ARSENAL, play_idx=idx) for idx in range(len(arsenal_player.hand))]
+
+        # Only offer SET_ARSENAL if arsenal slot is empty
+        if len(arsenal_player.arsenal) == 0:
+            actions = [Action(ActType.SET_ARSENAL, play_idx=idx) for idx in range(len(arsenal_player.hand))]
+        else:
+            actions = []
+
         actions.append(Action(ActType.PASS))
         return actions
 

@@ -121,24 +121,20 @@ class TestCombatEdgeCases:
         When: Damage applied
         Then: Defender life <= 0, game may end
         """
+        from tests.conftest import execute_full_combat
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
         gs.players[1].life = 3  # Low life
 
         attack_card = Card(name="Lethal Attack", cost=0, attack=5, defense=3, pitch=1)
         gs.players[0].hand = [attack_card]
 
-        # Execute attack
+        # Execute full combat (attack with no defense)
         attack_action = Action(typ=ActType.PLAY_ATTACK, play_idx=0, pitch_mask=0)
-        state1, _, _ = apply_action(gs, attack_action)
+        final_state = execute_full_combat(gs, attack_action)
 
-        # Defender passes (no block)
-        pass_action = Action(typ=ActType.PASS)
-        state2, _, _ = apply_action(state1, pass_action)
-        state3, _, _ = apply_action(state2, pass_action)
-        state4, _, _ = apply_action(state3, pass_action)
-
-        # Defender should be at or below 0 life
-        assert state4.players[1].life <= 0
+        # Defender should be at or below 0 life (3 - 5 = -2)
+        assert final_state.players[1].life <= 0
 
     def test_empty_hand_defense(self):
         """
@@ -209,6 +205,8 @@ class TestSpecialScenarios:
         When: Attacks resolve sequentially
         Then: Each restores action point, player can chain attacks
         """
+        from tests.conftest import execute_full_combat
+
         gs = create_test_game(phase=Phase.ACTION, turn=0, action_points=1)
 
         go_again_cards = [
@@ -217,21 +215,15 @@ class TestSpecialScenarios:
         ]
         gs.players[0].hand = go_again_cards
 
-        # First attack
+        # First attack with full combat sequence
         attack1 = Action(typ=ActType.PLAY_ATTACK, play_idx=0, pitch_mask=0)
-        state1, _, _ = apply_action(gs, attack1)
-
-        # Complete combat
-        pass_action = Action(typ=ActType.PASS)
-        state2, _, _ = apply_action(state1, pass_action)
-        state3, _, _ = apply_action(state2, pass_action)
-        state4, _, _ = apply_action(state3, pass_action)
+        state_after_first = execute_full_combat(gs, attack1)
 
         # Should have action point restored
-        assert state4.action_points == 1
+        assert state_after_first.action_points == 1
 
         # Second attack should be possible
-        legal = enumerate_legal_actions(state4)
+        legal = enumerate_legal_actions(state_after_first)
         action_types = {act.typ for act in legal}
         assert ActType.PLAY_ATTACK in action_types or ActType.PASS in action_types
 
