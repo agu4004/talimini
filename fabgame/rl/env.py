@@ -230,8 +230,12 @@ class FabgameEnv(gym.Env):
             raise ValueError(f"Illegal action attempted: {resolved!r}")
         next_state, done, events = apply_action(self.state, resolved)
         self._state = next_state
-        self._done = done
         self._step_count += 1
+
+        # Check if episode should be truncated due to max steps
+        truncated = self._step_count >= self.max_episode_steps
+        # Mark episode as done if either naturally terminated or truncated
+        self._done = done or truncated
 
         opponent = 1 - actor
         reward = self.reward_step  # Step penalty to encourage faster wins
@@ -266,9 +270,6 @@ class FabgameEnv(gym.Env):
                 reward = self.reward_draw
 
         obs = encode_observation(self.state, config=self.encoder_config)
-
-        # NEW: Check if episode should be truncated due to max steps
-        truncated = self._step_count >= self.max_episode_steps
         if truncated and not done:
             # Game ran too long without natural termination
             # Give small negative reward to discourage infinite games
