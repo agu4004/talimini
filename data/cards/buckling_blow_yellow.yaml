@@ -1,0 +1,26 @@
+id: buckling_blow_yellow
+name: Buckling Blow
+class: Guardian
+type: attack
+pitch: 2
+cost: 4
+attack: 7
+defense: 3
+count: 3
+
+text: Crush - If this deals 4 or more damage to a hero, put a -1{d} counter on an equipment they control.
+keywords:
+  - crush
+  - guardian_attack
+
+rules:
+  play:
+    cost:
+      base: 4
+  effects:
+  - when: on_hit
+    if: damage_dealt >= 4
+    do:
+    - 'opponent_equipment_add_minus_defense: 1'
+    duration: permanent
+  duration: this_chain_link

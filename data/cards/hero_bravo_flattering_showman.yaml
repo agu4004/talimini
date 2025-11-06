@@ -1,0 +1,31 @@
+id: hero_bravo_flattering_showman
+name: Bravo, Flattering Showman
+class: Guardian
+type: hero
+pitch: 0
+cost: 0
+attack: 0
+defense: 0
+young: true
+intellect: 4
+life: 20
+
+text: 'Action - Pay 2 resources, T: Turn a face-down card in your arsenal face-up. If it has crush, it gets +2 Power and dominate this turn. Go again.'
+keywords:
+  - action
+  - guardian
+  - crush_support
+
+rules:
+  play: {}
+  effects:
+  - when: activated_hero_ability
+    do:
+    - reveal_arsenal_face_down
+    - 'if: card_has_keyword(''crush''); then: [add_attack: 2, add_keyword: dominate]'
+    duration: this_turn
+  duration: this_turn
+
+engine_hints:
+  hero_action_cost: 2
+  hero_action_has_go_again: true

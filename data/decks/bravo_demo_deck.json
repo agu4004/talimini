@@ -1,0 +1,35 @@
+{
+  "name": "Bravo Demo Deck",
+  "format": "Open",
+  "source_urls": [
+    "https://fabrary.net/decks/01K1GBSGB17GT925NVJ0PM0G9Y"
+  ],
+  "hero": {
+    "name": "Bravo, Flattering Showman",
+    "class": "Guardian",
+    "young": true,
+    "intellect": 4,
+    "life": 20,
+    "ability": "Action — Pay 2 resources, T: Turn a face-down card in your arsenal face-up. If it has crush, it gets +2 Power and dominate this turn. Go again."
+  },
+  "arena": [
+    { "name": "Blossom of Spring", "slot": "Chest", "defense": 0 },
+    { "name": "Cracker Jax", "slot": "Arms", "defense": 0 },
+    { "name": "Ironrot Helm", "slot": "Head", "defense": 1 },
+    { "name": "Ironrot Legs", "slot": "Legs", "defense": 1 }
+  ],
+  "cards": [
+    { "name": "Crash Down", "color": "red", "count": 2, "type": "aura",   "cost": 3, "attack": 0, "defense": 3, "pitch": 1 },
+    { "name": "Debilitate", "color": "red", "count": 3, "type": "attack", "cost": 4, "attack": 8, "defense": 3, "pitch": 1 },
+    { "name": "Knock 'Em Off Their Feet", "color": "red", "count": 3, "type": "attack", "cost": 4, "attack": 8, "defense": 3, "pitch": 1 },
+    { "name": "Thunder Quake", "color": "red", "count": 1, "type": "attack", "cost": 6, "attack": 10, "defense": 3, "pitch": 1 },
+    { "name": "Buckling Blow", "color": "yellow", "count": 3, "type": "attack", "cost": 4, "attack": 7, "defense": 3, "pitch": 2 },
+    { "name": "Clash of Mountains", "color": "blue", "count": 3, "type": "attack", "cost": 4, "attack": 6, "defense": 3, "pitch": 3 },
+    { "name": "Crash and Bash", "color": "blue", "count": 3, "type": "block",  "cost": 0, "attack": 0, "defense": 2, "pitch": 3 },
+    { "name": "Disable", "color": "blue", "count": 3, "type": "attack", "cost": 5, "attack": 7, "defense": 3, "pitch": 3 },
+    { "name": "Flatten the Field", "color": "blue", "count": 3, "type": "attack", "cost": 4, "attack": 6, "defense": 3, "pitch": 3 },
+    { "name": "Grind Them Down", "color": "blue", "count": 3, "type": "attack", "cost": 3, "attack": 5, "defense": 3, "pitch": 3 },
+    { "name": "Macho Grande", "color": "blue", "count": 1, "type": "attack", "cost": 7, "attack": 8, "defense": 3, "pitch": 3 },
+    { "name": "Reinforce the Line", "color": "blue", "count": 2, "type": "instant", "cost": 0, "attack": 0, "defense": 0, "pitch": 3 }
+  ]
+}

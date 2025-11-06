@@ -1,0 +1,32 @@
+id: edge_of_autumn
+name: Edge of Autumn
+class: Generic
+type: weapon
+pitch: 0  # Weapons don't have pitch
+
+# Weapon stats
+base_attack: 1
+cost: 1
+once_per_turn: true
+
+text: "Once per Turn Action - {1}: Attack"
+keywords:
+  - go_again
+
+rules:
+  play:
+    cost:
+      base: 1
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects: []
+  duration: "permanent"
+  keywords:
+    - weapon
+    - go_again
+    - once_per_turn
+
+engine_hints:
+  zone: "arena"
+  weapon_attack_type: "melee"

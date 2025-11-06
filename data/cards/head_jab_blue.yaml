@@ -1,0 +1,35 @@
+id: head_jab_blue
+name: Head Jab
+class: Ninja
+type: attack
+pitch: 3  # 1 = red, 2 = yellow, 3 = blue
+cost: 0
+attack: 1
+defense: 2
+
+text: "Go again."
+keywords:
+  - go_again
+
+rules:
+  play:
+    cost:
+      base: 0
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects: []
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+    - go_again
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

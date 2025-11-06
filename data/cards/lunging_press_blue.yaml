@@ -1,0 +1,38 @@
+id: lunging_press_blue
+name: Lunging Press
+class: Generic
+type: attack_reaction
+pitch: 3  # 1 = red, 2 = yellow, 3 = blue
+cost: 0
+attack: 0
+defense: 2
+
+text: "+1 Power to target attack."
+keywords:
+  - attack_reaction
+
+rules:
+  play:
+    cost:
+      base: 0
+      additional: []
+    condition:
+      - "phase == 'REACTION'"
+  effects:
+    - when: "on_reaction_resolve"
+      do:
+        - "modify_current_attack: {attack_bonus: 1}"
+      duration: "this_chain_link"
+  duration: "this_chain_link"
+  keywords:
+    - attack_reaction
+
+targets:
+  - name: "current_attack"
+    type: attack_action
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

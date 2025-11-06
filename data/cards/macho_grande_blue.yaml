@@ -1,0 +1,25 @@
+id: macho_grande_blue
+name: Macho Grande
+class: Guardian
+type: attack
+pitch: 3
+cost: 7
+attack: 8
+defense: 3
+count: 1
+
+text: Dominate. (In full rules Macho Grande has dominate.)
+keywords:
+  - guardian_attack
+  - dominate
+
+rules:
+  play:
+    cost:
+      base: 7
+  effects:
+  - when: on_declare
+    do:
+    - 'add_keyword: dominate'
+    duration: this_chain_link
+  duration: this_chain_link

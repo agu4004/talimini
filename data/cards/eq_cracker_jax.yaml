@@ -1,0 +1,22 @@
+id: eq_cracker_jax
+name: Cracker Jax
+class: Generic
+type: equipment
+pitch: 0
+cost: 0
+attack: 0
+defense: 0
+slot: arms
+
+text: 'Action - Destroy Cracker Jax: Target attack action card gets +1{p}. Go again.'
+keywords:
+  - action
+  - pump
+
+rules:
+  effects:
+  - when: activated
+    do:
+    - 'target_attack_add_attack: 1'
+    - 'add_keyword: go_again'
+    duration: this_chain_link

@@ -1,0 +1,41 @@
+id: eq_blossom_of_spring
+name: Blossom of Spring
+class: Generic
+type: equipment
+pitch: 0
+cost: 0
+attack: 0
+defense: 0
+slot: chest
+
+text: >
+  Action - Destroy Blossom of Spring: Gain 1 resource.
+keywords:
+  - action
+  - equipment
+
+rules:
+  play:
+    cost:
+      base: 0
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+      - "equipment_ready('Blossom of Spring')"
+  effects:
+    - when: "on_activate"
+      do:
+        - "destroy_self"
+        - "gain_resource: 1"
+      duration: "immediate"
+  duration: "immediate"
+  keywords:
+    - resource
+    - action_activation
+
+targets: []
+
+engine_hints:
+  equipment_slot: chest
+  destroy_on_use: true
+  consume_action_point: true

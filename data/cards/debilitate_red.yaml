@@ -1,0 +1,30 @@
+id: debilitate_red
+name: Debilitate
+class: Guardian
+type: attack
+pitch: 1
+cost: 4
+attack: 8
+defense: 3
+count: 3
+
+text: Crush - If Debilitate deals 4 or more damage to a hero, their first attack during their next turn has -2{p}.
+keywords:
+  - crush
+  - guardian_attack
+
+rules:
+  play:
+    cost:
+      base: 4
+    condition:
+    - phase == 'ACTION'
+  effects:
+  - when: on_hit
+    if: damage_dealt >= 4
+    do:
+    - 'apply_debuff_to_opponent: {attack_mod: -2, duration: ''next_turn_first_attack''}'
+    duration: next_turn
+  duration: this_chain_link
+  keywords:
+  - crush

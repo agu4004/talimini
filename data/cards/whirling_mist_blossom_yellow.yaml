@@ -1,0 +1,42 @@
+id: whirling_mist_blossom_yellow
+name: Whirling Mist Blossom
+class: Ninja
+type: attack
+pitch: 2  # 1 = red, 2 = yellow, 3 = blue
+cost: 1
+attack: 2
+defense: 2
+
+text: >
+  If this hits and it's the second chain link, draw two cards.
+keywords:
+  - on_hit
+  - go_again
+
+rules:
+  play:
+    cost:
+      base: 1
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "on_hit"
+      if: "is_second_attack"
+      do:
+        - "draw_cards: 2"
+      duration: "immediate"
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+    - go_again
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

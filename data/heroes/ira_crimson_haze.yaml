@@ -1,0 +1,25 @@
+id: ira_crimson_haze
+name: Ira, Crimson Haze
+class: Ninja
+type: hero
+intellect: 4
+life: 20
+
+text: "Your second attack each turn gains +1 [Power]."
+ability: "Your second attack each turn gains +1 [Power]."
+
+# Hero modifiers - applied during gameplay
+modifiers:
+  on_declare:
+    - when: "is_second_attack"
+      add_attack: 1
+
+# Optional: Additional hero properties
+properties:
+  specialization: "Ninja"
+  set: "Welcome to Rathe"
+  rarity: "token"
+
+engine_hints:
+  tracks_attacks_per_turn: true
+  modifier_timing: "on_declare_attack"

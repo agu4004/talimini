@@ -1,0 +1,32 @@
+{
+  "name": "Ira Welcome Deck",
+  "format": "Open",
+  "source_urls": [
+    "https://fabrary.net/decks/01GJG7Z4WGWSZ95FY74KX4M557"
+  ],
+  "hero": {
+    "name": "Ira, Crimson Haze",
+    "class": "Ninja",
+    "young": true,
+    "intellect": 4,
+    "life": 20,
+    "ability": "The second attack action card you play each turn has +1 Power."
+  },
+  "arena": [
+    { "name": "Edge of Autumn", "slot": "Weapon", "defense": 0 }
+  ],
+  "cards": [
+    { "name": "Flying Kick",               "color": "red",    "count": 3, "type": "attack",            "cost": 2, "attack": 5, "defense": 3, "pitch": 1 },
+    { "name": "Scar for a Scar",           "color": "red",    "count": 3, "type": "attack",            "cost": 0, "attack": 4, "defense": 2, "pitch": 1 },
+    { "name": "Torrent of Tempo",          "color": "red",    "count": 3, "type": "attack",            "cost": 1, "attack": 5, "defense": 3, "pitch": 1 },
+
+    { "name": "Bittering Thorns",          "color": "yellow", "count": 3, "type": "attack",            "cost": 1, "attack": 3, "defense": 2, "pitch": 2 },
+    { "name": "Salt the Wound",            "color": "yellow", "count": 3, "type": "attack",            "cost": 0, "attack": 2, "defense": 3, "pitch": 2 },
+    { "name": "Springboard Somersault",    "color": "yellow", "count": 3, "type": "defense_reaction",  "cost": 0, "attack": 0, "defense": 2, "pitch": 2 },
+    { "name": "Whirling Mist Blossom",     "color": "yellow", "count": 3, "type": "attack",            "cost": 1, "attack": 2, "defense": 2, "pitch": 2 },
+
+    { "name": "Brutal Assault",            "color": "blue",   "count": 3, "type": "attack",            "cost": 2, "attack": 4, "defense": 3, "pitch": 3 },
+    { "name": "Head Jab",                  "color": "blue",   "count": 3, "type": "attack",            "cost": 0, "attack": 1, "defense": 2, "pitch": 3 },
+    { "name": "Lunging Press",             "color": "blue",   "count": 3, "type": "attack_reaction",   "cost": 0, "attack": 0, "defense": 2, "pitch": 3 }
+  ]
+}

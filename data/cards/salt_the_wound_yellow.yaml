@@ -1,0 +1,38 @@
+id: salt_the_wound_yellow
+name: Salt the Wound
+class: Ninja
+type: attack
+pitch: 2  # 1 = red, 2 = yellow, 3 = blue
+cost: 0
+attack: 2
+defense: 3
+
+text: >
+  Gains +1{p} for each attack action card you've played this turn.
+keywords: []
+
+rules:
+  play:
+    cost:
+      base: 0
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "on_declare"
+      do:
+        - "add_attack_per_attack_played: 1"
+      duration: "this_chain_link"
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

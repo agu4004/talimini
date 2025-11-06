@@ -1,0 +1,37 @@
+id: ira_crimson_haze
+name: Ira, Crimson Haze
+class: Ninja
+type: hero
+pitch: 0
+cost: 0
+attack: 0
+defense: 0
+young: true
+intellect: 4
+life: 20
+
+text: >
+  Your second attack each turn gets +1{p}.
+keywords: []
+
+rules:
+  passive:
+    condition:
+      - "card_type == 'attack'"
+    effects:
+      - when: "on_declare"
+        if: "is_second_attack"
+        do:
+          - "add_attack: 1"
+        duration: "this_chain_link"
+  duration: "this_chain_link"
+  keywords:
+    - hero
+
+targets: []
+
+engine_hints:
+  hero: true
+  allow_in_arsenal: false
+  can_defend_from_arsenal: false
+  zone_sensitive: false

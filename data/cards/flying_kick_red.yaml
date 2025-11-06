@@ -1,0 +1,39 @@
+id: flying_kick_red
+name: Flying Kick
+class: Ninja
+type: attack
+pitch: 1  # 1 = red, 2 = yellow, 3 = blue
+cost: 2
+attack: 5
+defense: 3
+
+text: >
+  If this was played as chain link 3 or higher, it gets +2{p}.
+keywords: []
+
+rules:
+  play:
+    cost:
+      base: 2
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "on_declare"
+      if: "is_third_attack_or_higher"
+      do:
+        - "add_attack: 2"
+      duration: "this_chain_link"
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

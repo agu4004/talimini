@@ -1,0 +1,40 @@
+id: scar_for_a_scar_red
+name: Scar for a Scar
+class: Generic
+type: attack
+pitch: 1  # 1 = red, 2 = yellow, 3 = blue
+cost: 0
+attack: 4
+defense: 2
+
+text: >
+  If you have less life than your opponent, this has go again.
+keywords: []
+
+rules:
+  play:
+    cost:
+      base: 0
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "on_declare"
+      if: "you_life < opponent_life"
+      do:
+        - "add_keyword: go_again"
+      duration: "this_chain_link"
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+    - conditional_keyword
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

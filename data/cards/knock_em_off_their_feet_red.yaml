@@ -1,0 +1,43 @@
+id: knock_em_off_their_feet_red
+name: Knock 'Em Off Their Feet
+class: Guardian
+type: attack
+pitch: 1  # 1 = red, 2 = yellow, 3 = blue
+cost: 4
+attack: 8
+defense: 3
+count: 3
+
+text: >
+  Crush - When this deals 4 or more damage to a hero, tap them.
+keywords:
+  - crush
+  - guardian_attack
+
+rules:
+  play:
+    cost:
+      base: 4
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "on_hit"
+      if: "damage_dealt >= 4"
+      do:
+        - "tap_target: defending_hero"
+      duration: "immediate"
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+    - crush
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

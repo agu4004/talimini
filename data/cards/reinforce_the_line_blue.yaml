@@ -1,0 +1,42 @@
+id: reinforce_the_line_blue
+name: Reinforce the Line
+class: Generic
+type: instant
+pitch: 3  # 1 = red, 2 = yellow, 3 = blue
+cost: 0
+attack: 0
+defense: 0
+count: 2
+
+text: >
+  Target defending card gets +2{d}.
+keywords:
+  - instant
+  - defense_buff
+
+rules:
+  play:
+    cost:
+      base: 0
+      additional: []
+    condition:
+      - "can_play_in_defense_step"
+  effects:
+    - when: "on_play"
+      do:
+        - "boost_defending_card: {defense_bonus: 2}"
+      duration: "this_chain_link"
+  duration: "this_chain_link"
+  keywords:
+    - instant_speed
+    - defense_buff
+
+targets:
+  - name: "defending_card"
+    type: defending_card
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: true
+  instant_speed: true

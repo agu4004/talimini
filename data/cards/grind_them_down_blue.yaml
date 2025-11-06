@@ -1,0 +1,43 @@
+id: grind_them_down_blue
+name: Grind Them Down
+class: Guardian
+type: attack
+pitch: 3  # 1 = red, 2 = yellow, 3 = blue
+cost: 3
+attack: 5
+defense: 3
+count: 3
+
+text: >
+  Crush - When this deals 4 or more damage to a hero, destroy the top card of their deck.
+keywords:
+  - crush
+  - guardian_attack
+
+rules:
+  play:
+    cost:
+      base: 3
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "on_hit"
+      if: "damage_dealt >= 4"
+      do:
+        - "mill_opponent_deck: 1"
+      duration: "instant"
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+    - crush
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

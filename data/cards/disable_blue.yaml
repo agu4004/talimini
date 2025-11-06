@@ -1,0 +1,26 @@
+id: disable_blue
+name: Disable
+class: Guardian
+type: attack
+pitch: 3
+cost: 5
+attack: 7
+defense: 3
+count: 3
+
+text: Crush - If Disable deals 4 or more damage to a hero, put a card from their arsenal on the bottom of its owner's deck.
+keywords:
+  - crush
+  - guardian_attack
+
+rules:
+  play:
+    cost:
+      base: 5
+  effects:
+  - when: on_hit
+    if: damage_dealt >= 4
+    do:
+    - 'target_opponent_move_arsenal_to_bottom: 1'
+    duration: instant
+  duration: this_chain_link

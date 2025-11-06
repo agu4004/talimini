@@ -1,0 +1,33 @@
+id: brutal_assault_blue
+name: Brutal Assault
+class: Generic
+type: attack
+pitch: 3  # 1 = red, 2 = yellow, 3 = blue
+cost: 2
+attack: 4
+defense: 3
+
+text: ""
+keywords: []
+
+rules:
+  play:
+    cost:
+      base: 2
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects: []
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

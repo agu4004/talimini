@@ -1,0 +1,41 @@
+id: crash_and_bash_blue
+name: Crash and Bash
+class: Guardian
+type: defense
+pitch: 3  # 1 = red, 2 = yellow, 3 = blue
+cost: 0
+attack: 0
+defense: 2
+count: 3
+
+text: >
+  When this defends, you may reveal a card with crush from your hand. If you do, create a Seismic Surge token.
+keywords:
+  - defend
+  - guardian
+
+rules:
+  play:
+    cost:
+      base: 0
+      additional: []
+    condition:
+      - "phase == 'DEFENSE'"
+  effects:
+    - when: "on_defend"
+      do:
+        - "optional_reveal_from_hand: {filter: \"has_keyword('crush')\", consequence: ['create_token: Seismic Surge']}"
+      duration: "immediate"
+  duration: "this_chain_link"
+  keywords:
+    - defense_action
+    - reveal
+
+targets:
+  - name: "seismic_surge_token"
+    type: token
+    required: false
+
+engine_hints:
+  can_defend_from_arsenal: false
+  defense_action: true

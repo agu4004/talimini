@@ -1,0 +1,48 @@
+id: thunder_quake_red
+name: Thunder Quake
+class: Guardian
+type: attack
+pitch: 1  # 1 = red, 2 = yellow, 3 = blue
+cost: 6
+attack: 10
+defense: 3
+count: 1
+
+text: >
+  Heave 3 (At the beginning of your end phase, if Thunder Quake is in your hand and you have an empty arsenal zone, you may pay {r}{r}{r} and put Thunder Quake face up into your arsenal. If you do, create 3 Seismic Surge tokens.)
+keywords:
+  - guardian_attack
+  - heave
+  - big_attack
+
+rules:
+  play:
+    cost:
+      base: 6
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "start_of_end_phase"
+      if: "in_hand and arsenal_slots_open >= 1"
+      do:
+        - "offer_heave: {resource_cost: 3, move_to_arsenal_face_up: true, create_tokens: [{'name': 'Seismic Surge', 'count': 3}]}"
+      duration: "this_turn"
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+    - heave
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+  - name: "seismic_surge_tokens"
+    type: token
+    required: false
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: true
+  has_heave: true

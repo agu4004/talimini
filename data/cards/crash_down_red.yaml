@@ -1,0 +1,41 @@
+id: crash_down_red
+name: Crash Down
+class: Guardian
+type: aura
+pitch: 1  # 1 = red, 2 = yellow, 3 = blue
+cost: 3
+attack: 0
+defense: 3
+count: 2
+
+text: >
+  At the start of your turn, destroy this, then the next Guardian attack action card you play this turn gets +6{p}.
+keywords:
+  - aura
+  - guardian
+
+rules:
+  play:
+    cost:
+      base: 3
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "on_play"
+      do:
+        - "schedule_delayed_trigger: {trigger: 'start_of_your_turn', effect: ['destroy_self', 'buff_next_guardian_attack: 6']}"
+      duration: "delayed"
+  duration: "this_turn"
+  keywords:
+    - aura
+    - delayed_effect
+
+targets:
+  - name: "next_guardian_attack"
+    type: attack_action
+    required: false
+
+engine_hints:
+  allow_in_arsenal: true
+  zone_sensitive: true

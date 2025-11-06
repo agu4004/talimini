@@ -1,0 +1,33 @@
+id: eq_ironrot_legs
+name: Ironrot Legs
+class: Generic
+type: equipment
+pitch: 0
+cost: 0
+attack: 0
+defense: 1
+slot: legs
+
+text: >
+  Blade Break - When the combat chain closes, if this defended, destroy it.
+keywords:
+  - blade_break
+  - equipment
+
+rules:
+  play: {}
+  effects:
+    - when: "on_combat_chain_close"
+      if: "this_defended_this_chain"
+      do:
+        - "destroy_self"
+      duration: "immediate"
+  duration: "immediate"
+  keywords:
+    - equipment
+
+targets: []
+
+engine_hints:
+  equipment_slot: legs
+  destroy_on_use: true

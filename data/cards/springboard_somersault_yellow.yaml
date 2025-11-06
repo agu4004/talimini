@@ -1,0 +1,40 @@
+id: springboard_somersault_yellow
+name: Springboard Somersault
+class: Generic
+type: defense_reaction
+pitch: 2  # 1 = red, 2 = yellow, 3 = blue
+cost: 0
+attack: 0
+defense: 2
+
+text: >
+  If Springboard Somersault is played from arsenal, it gets +2{d}.
+keywords:
+  - defense_reaction
+
+rules:
+  play:
+    cost:
+      base: 0
+      additional: []
+    condition:
+      - "phase == 'REACTION'"
+  effects:
+    - when: "on_reaction_resolve"
+      if: "played_from_arsenal"
+      do:
+        - "modify_current_defense: {defense_bonus: 2}"
+      duration: "this_chain_link"
+  duration: "this_chain_link"
+  keywords:
+    - defense_reaction
+
+targets:
+  - name: "current_attack"
+    type: attack_action
+    required: true
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: true
+  zone_sensitive: false

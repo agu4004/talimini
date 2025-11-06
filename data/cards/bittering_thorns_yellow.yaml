@@ -1,0 +1,40 @@
+id: bittering_thorns_yellow
+name: Bittering Thorns
+class: Ninja
+type: attack
+pitch: 2  # 1 = red, 2 = yellow, 3 = blue
+cost: 1
+attack: 3
+defense: 2
+
+text: >
+  When this hits, your next attack this turn gets +1{p}.
+keywords:
+  - go_again
+
+rules:
+  play:
+    cost:
+      base: 1
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+  effects:
+    - when: "on_hit"
+      do:
+        - "modify_next_attack: {attack_bonus: 1}"
+      duration: "this_turn"
+  duration: "this_chain_link"
+  keywords:
+    - attack_action
+    - go_again
+
+targets:
+  - name: "next_attack_this_turn"
+    type: attack_action
+    required: false
+
+engine_hints:
+  allow_in_arsenal: true
+  can_defend_from_arsenal: false
+  zone_sensitive: false

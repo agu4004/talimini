@@ -1,0 +1,45 @@
+id: edge_of_autumn
+name: Edge of Autumn
+class: Ninja
+type: weapon
+pitch: 0
+cost: 1
+attack: 1
+defense: 0
+
+text: >
+  Once per Turn - [1 Resource]: Attack.
+keywords:
+  - once_per_turn
+  - go_again
+
+rules:
+  play:
+    cost:
+      base: 1
+      additional: []
+    condition:
+      - "phase == 'ACTION'"
+      - "weapon_available('Edge of Autumn')"
+  effects:
+    - when: "on_activate"
+      do:
+        - "perform_weapon_attack: {attack: 1}"
+        - "mark_weapon_used"
+      duration: "this_chain_link"
+  duration: "this_chain_link"
+  keywords:
+    - weapon
+    - once_per_turn
+    - go_again
+
+targets:
+  - name: "defending_hero"
+    type: hero
+    required: true
+
+engine_hints:
+  allow_in_arsenal: false
+  can_defend_from_arsenal: false
+  zone_sensitive: false
+  weapon: true

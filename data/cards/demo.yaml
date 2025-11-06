@@ -1,0 +1,76 @@
+id: no_hero_stands_alone_red
+name: No Hero Stands Alone
+class: Generic
+type: attack
+pitch: 1              # 1 = red, 2 = yellow, 3 = blue
+cost: 3               # cost cơ bản để play
+attack: 6
+defense: 0
+
+# thông tin hiển thị
+text: >
+  While this is in any zone, if you've controlled a Toughness token this turn,
+  this gets +3{p} and ambush.
+  When this defends, clash with the attacking hero. The winner may choose an
+  attacking or defending card to get -3{p} / -3{d} this chain link.
+
+keywords:
+  - ambush           # sẽ được add khi thoả điều kiện
+  - clash
+  - toughness-check
+
+# đây là phần bạn muốn: cost / condition / effect / duration / keyword
+rules:
+  play:
+    # 1) COST
+    cost:
+      base: 3
+      additional: []         # ví dụ: - when: "has_frostbite" -> pay: 1
+
+    # 2) CONDITION để được chơi
+    condition:
+      - "phase == 'ACTION'"
+      - "you_have_card_in_hand"        # ví dụ điều kiện chung
+      # điều kiện riêng của lá này: đã tạo toughness trong lượt này
+      - "controlled_token('Toughness') == True"
+
+  # 3) EFFECTS
+  effects:
+    # effect 1: nếu đã tạo toughness → +3 attack và thêm ambush
+    - when: "on_declare"
+      if: "controlled_token('Toughness') == True"
+      do:
+        - "add_attack: 3"
+        - "add_keyword: ambush"
+      duration: "this_chain_link"
+
+    # effect 2: khi lá này được dùng để DEFEND → thực hiện clash
+    - when: "on_defend"
+      do:
+        - "clash_with_attacking_hero"
+        - "winner_choose_card_and_modify: {attack: -3, defense: -3}"
+      duration: "this_chain_link"
+
+  # 4) DURATION chung (fallback)
+  duration: "this_chain_link"
+
+  # 5) KEYWORD (fallback) – nếu engine cần list tổng
+  keywords:
+    - attack_action
+    - conditional_buff
+
+# mục tiêu mà effect này có thể đụng tới (để bot/AI biết phải chọn gì)
+targets:
+  - name: "attacking_hero"
+    type: hero
+    required: true
+  - name: "any_combat_card"
+    type: card_on_chain
+    required: false
+
+# gợi ý cho engine (không bắt buộc)
+engine_hints:
+  apply_condition_early: true
+  allow_in_arsenal: true
+  can_defend_from_arsenal: true
+  zone_sensitive: true
