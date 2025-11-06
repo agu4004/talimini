@@ -89,7 +89,7 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def make_env(rules_version: str, seed: int = 0, reward_step: float = 0.0, reward_on_hit: float = 0.0, reward_good_block: float = 0.0, reward_overpitch: float = 0.0):
+def make_env(rules_version: str, seed: int = 0, reward_step: float = 0.0, reward_on_hit: float = 0.0, reward_good_block: float = 0.0, reward_overpitch: float = 0.0, max_episode_steps: int = 500):
     """Create a monitored environment."""
     def _init():
         env = FabgameEnv(
@@ -98,6 +98,7 @@ def make_env(rules_version: str, seed: int = 0, reward_step: float = 0.0, reward
             reward_on_hit=reward_on_hit,
             reward_good_block=reward_good_block,
             reward_overpitch=reward_overpitch,
+            max_episode_steps=max_episode_steps,
         )
         # Add action mask to observation for proper masking
         env = ActionMasker(env, action_mask_fn=lambda env: env.action_masks())
@@ -113,7 +114,7 @@ def main() -> None:
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    # Create environments
+    # Create environments (with max_episode_steps to prevent infinite games)
     env = make_env(
         args.rules_version,
         args.seed,
@@ -121,11 +122,12 @@ def main() -> None:
         reward_on_hit=0.2,
         reward_good_block=0,
         reward_overpitch=0,
+        max_episode_steps=500,
     )()
 
     # Create eval env with action masking (don't double-wrap with Monitor)
     def make_eval_env():
-        eval_env = FabgameEnv(rules_version=args.rules_version)
+        eval_env = FabgameEnv(rules_version=args.rules_version, max_episode_steps=500)
         eval_env = ActionMasker(eval_env, action_mask_fn=lambda env: env.action_masks())
         eval_env = Monitor(eval_env)
         return eval_env
