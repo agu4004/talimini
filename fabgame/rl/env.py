@@ -289,10 +289,8 @@ class FabgameEnv(gym.Env):
             "truncated": truncated,  # NEW: Add truncation info
         }
         # Gymnasium returns 5-tuple: (obs, reward, terminated, truncated, info)
-        # Add action mask to observation for SB3 action masking
-        obs_with_mask = obs.copy()
-        obs_with_mask["legal_action_mask"] = info["legal_action_mask"]
-        return obs_with_mask, float(reward), done, truncated, info
+        # ActionMasker wrapper handles the mask separately, so don't add it to obs
+        return obs, float(reward), done, truncated, info
 
     def clone(self) -> GameState:
         return self.state.copy()
